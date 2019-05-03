@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+  db:
+    # TODO upgrade mysql to 8
+    image: mysql:5.7.26
+    volumes:
+      - database_volume:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD=pass
+    ports:
+      # Allow us to directly access the database during development
+      - 3306:3306
+
+  redis:
+    image: redis:4-alpine
+
+  nginx:
+    image: nginx:1.15.12-alpine
+    ports:
+      # Will be available @ localhost:8000
+      - 8000:80
+    depends_on:
+      # Make sure Django's built so Nginx can serve its static content
+      - djangosvc
+    volumes:
+      # Django's static files
+      - ./app/static:/usr/share/nginx/html/static
+      # Nginx config
+      - ./app/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  djangosvc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - DJANGO_SECRET_KEY
+    container_name: ${SVC_NAME}
+    # Automatically reload Gunicorn when a file changes
+    command: gunicorn ${SVC_NAME}.wsgi -c gunicorn.cfg --reload
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./app:/djangosvc
+      # Django static files will go here so webserver can access them
+      - ./app/static:/djangosvc/static
+    environment:
+      - DEBUG
+      - DJANGO_SECRET_KEY
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+
+volumes:
+  database_volume:

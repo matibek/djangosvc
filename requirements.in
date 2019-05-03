@@ -1,0 +1,6 @@
+# framework
+Django==2.2
+gunicorn==19.9.0
+gevent==1.4.0
+mysqlclient==1.4.2.post1
+django-redis==4.10.0
