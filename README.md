@@ -82,13 +82,13 @@ Builds the Django container. The container is derived from the standard **python
 
 ### docker-compose.yml
 
-> NOTE: The compose file is intended for development purposes as we deploy our service using kubernetes and all configurations are handled in the infra.
+> NOTE: The compose file is intended for development purposes as we assume all configurations are handled by the infra.
 
 Tasked with spinning up three containers: the above container for **Django**, one for **MySQL**, and one for **Redis**.
 
 By default an **Nginx** container is also created to reverse-proxy requests to Django and serve static files. In this configuration, the Django server will be available on port 8000 during development.
 
-If the Nginx container is removed, Docker can be accessed directly on port 8000. Static files can then be served from the **static_files_volume** Docker volume.
+If the Nginx container is removed, Docker can be accessed directly on port 8000.
 
 ### requirements.in/requirmenents.txt
 
